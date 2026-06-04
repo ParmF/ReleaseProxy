@@ -1,0 +1,6 @@
+{
+  "name": "ReleaseProxy",
+  "description": "High-performance GitHub release asset mirror and download proxy for bypassed loading.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
