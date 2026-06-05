@@ -1,0 +1,56 @@
+# GitHub Actions workflow to build the React application and deploy it to GitHub Pages
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Triggers compilation on push events targeting the main branch
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions dashboard
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs in progress for faster delivery
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js Runtime
+        uses: actions/setup-node@v4
+        with:
+          node-size: '20'
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Project Dependencies
+        run: npm ci
+
+      - name: Build Static Assets via Vite
+        run: npx vite build --base=./
+        # Note: We build with relative base paths so that GitHub Pages assets
+        # locate each other properly inside subfolders (e.g., github.com/owner/repository)
+
+      - name: Setup Pages Configuration
+        uses: actions/configure-pages@v4
+
+      - name: Upload Static Build Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './dist' # Folder outputted by the Vite compilation build
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
